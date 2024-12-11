@@ -1,0 +1,18 @@
+{
+    "appTitle": "Haftalık Öğün Planlama",
+    "homeTab": "Ana Sayfa",
+    "exploreTab": "Keşfet",
+    "inventoryTab": "Envanter",
+    "settingsTab": "Ayarlar",
+    "exploreContent": "Keşfet İçeriği",
+    "inventoryContent": "Envanter İçeriği",
+    "themeSettings": "Tema Ayarları",
+    "systemTheme": "Sistem",
+    "lightTheme": "Açık",
+    "darkTheme": "Koyu",
+    "languageSettings": "Dil Ayarları",
+    "systemLanguage": "Sistem",
+    "turkish": "Türkçe",
+    "english": "İngilizce",
+    "homeContent": "Ana Sayfa İçeriği"
+} 
