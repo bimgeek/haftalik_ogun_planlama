@@ -25,7 +25,8 @@
             "name": "Mucahit Bilal iphone'u",
             "request": "launch",
             "type": "dart",
-            "deviceId": "00008110-00016C563607A01E"
+            "deviceId": "00008110-00016C563607A01E",
+            "flutterMode": "profile"
         }
     ]
 }

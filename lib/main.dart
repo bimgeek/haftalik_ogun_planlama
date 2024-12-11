@@ -44,6 +44,11 @@ class MyApp extends StatelessWidget {
             }
             return const TextStyle(fontSize: 12);
           }),
+          iconTheme: WidgetStateProperty.resolveWith((states) {
+            return const IconThemeData(size: 28);
+          }),
+          labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
+          height: 60,
         ),
         appBarTheme: const AppBarTheme(
           backgroundColor: Colors.transparent,
@@ -67,6 +72,11 @@ class MyApp extends StatelessWidget {
             }
             return const TextStyle(fontSize: 12);
           }),
+          iconTheme: WidgetStateProperty.resolveWith((states) {
+            return const IconThemeData(size: 28);
+          }),
+          labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
+          height: 60,
         ),
         appBarTheme: const AppBarTheme(
           backgroundColor: Colors.transparent,
@@ -109,7 +119,7 @@ class _MainScreenState extends State<MainScreen> {
           });
         },
         labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
-        height: 80,
+        height: 56,
         elevation: 0,
         destinations: const [
           NavigationDestination(
