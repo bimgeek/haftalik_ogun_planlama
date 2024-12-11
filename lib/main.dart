@@ -1,10 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'providers/locale_provider.dart';
 
 void main() {
   runApp(
-    ChangeNotifierProvider(
-      create: (_) => ThemeProvider(),
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => ThemeProvider()),
+        ChangeNotifierProvider(create: (_) => LocaleProvider()),
+      ],
       child: const MyApp(),
     ),
   );
@@ -27,7 +33,18 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Haftalık Öğün Planlama',
+      title: AppLocalizations.of(context)?.appTitle ?? 'Weekly Meal Planning',
+      locale: context.watch<LocaleProvider>().locale,
+      localizationsDelegates: const [
+        AppLocalizations.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: const [
+        Locale('en'), // English
+        Locale('tr'), // Turkish
+      ],
       theme: ThemeData.light(
         useMaterial3: true,
       ).copyWith(
@@ -121,26 +138,26 @@ class _MainScreenState extends State<MainScreen> {
         labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
         height: 56,
         elevation: 0,
-        destinations: const [
+        destinations: [
           NavigationDestination(
-            icon: Icon(Icons.home_outlined),
-            selectedIcon: Icon(Icons.home),
-            label: 'Ana Sayfa',
+            icon: const Icon(Icons.home_outlined),
+            selectedIcon: const Icon(Icons.home),
+            label: AppLocalizations.of(context)!.homeTab,
           ),
           NavigationDestination(
-            icon: Icon(Icons.search_outlined),
-            selectedIcon: Icon(Icons.search),
-            label: 'Keşfet',
+            icon: const Icon(Icons.search_outlined),
+            selectedIcon: const Icon(Icons.search),
+            label: AppLocalizations.of(context)!.exploreTab,
           ),
           NavigationDestination(
-            icon: Icon(Icons.shopping_basket_outlined),
-            selectedIcon: Icon(Icons.shopping_basket),
-            label: 'Envanter',
+            icon: const Icon(Icons.shopping_basket_outlined),
+            selectedIcon: const Icon(Icons.shopping_basket),
+            label: AppLocalizations.of(context)!.inventoryTab,
           ),
           NavigationDestination(
-            icon: Icon(Icons.settings_outlined),
-            selectedIcon: Icon(Icons.settings),
-            label: 'Ayarlar',
+            icon: const Icon(Icons.settings_outlined),
+            selectedIcon: const Icon(Icons.settings),
+            label: AppLocalizations.of(context)!.settingsTab,
           ),
         ],
       ),
@@ -153,11 +170,13 @@ class HomeTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: AppBar(
         title: Text(
-          'Haftalık Öğün Takip',
+          l10n.appTitle,
           style: TextStyle(
             fontWeight: FontWeight.bold,
             color: Theme.of(context).colorScheme.onSurface,
@@ -166,7 +185,7 @@ class HomeTab extends StatelessWidget {
       ),
       body: Center(
         child: Text(
-          'Ana Sayfa İçeriği',
+          l10n.homeContent,
           style: TextStyle(
             color: Theme.of(context).colorScheme.onSurface,
           ),
@@ -181,11 +200,13 @@ class ExploreTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: AppBar(
         title: Text(
-          'Keşfet',
+          l10n.exploreTab,
           style: TextStyle(
             fontWeight: FontWeight.bold,
             color: Theme.of(context).colorScheme.onSurface,
@@ -194,7 +215,7 @@ class ExploreTab extends StatelessWidget {
       ),
       body: Center(
         child: Text(
-          'Keşfet İçeriği',
+          l10n.exploreContent,
           style: TextStyle(
             color: Theme.of(context).colorScheme.onSurface,
           ),
@@ -209,11 +230,13 @@ class InventoryTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: AppBar(
         title: Text(
-          'Envanter',
+          l10n.inventoryTab,
           style: TextStyle(
             fontWeight: FontWeight.bold,
             color: Theme.of(context).colorScheme.onSurface,
@@ -222,7 +245,7 @@ class InventoryTab extends StatelessWidget {
       ),
       body: Center(
         child: Text(
-          'Envanter İçeriği',
+          l10n.inventoryContent,
           style: TextStyle(
             color: Theme.of(context).colorScheme.onSurface,
           ),
@@ -235,27 +258,29 @@ class InventoryTab extends StatelessWidget {
 class SettingsTab extends StatelessWidget {
   const SettingsTab({super.key});
 
-  String _getThemeModeText(ThemeMode mode) {
+  String getThemeModeText(ThemeMode mode, AppLocalizations l10n) {
     switch (mode) {
       case ThemeMode.system:
-        return 'Sistem';
+        return l10n.systemTheme;
       case ThemeMode.light:
-        return 'Açık';
+        return l10n.lightTheme;
       case ThemeMode.dark:
-        return 'Koyu';
+        return l10n.darkTheme;
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final themeProvider = Provider.of<ThemeProvider>(context);
     final theme = Theme.of(context);
-    
+    final themeProvider = Provider.of<ThemeProvider>(context);
+    final localeProvider = Provider.of<LocaleProvider>(context);
+    final l10n = AppLocalizations.of(context)!;
+
     return Scaffold(
       backgroundColor: theme.colorScheme.surface,
       appBar: AppBar(
         title: Text(
-          'Ayarlar',
+          l10n.settingsTab,
           style: TextStyle(
             fontWeight: FontWeight.bold,
             color: theme.colorScheme.onSurface,
@@ -263,181 +288,250 @@ class SettingsTab extends StatelessWidget {
         ),
       ),
       body: ListView(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
         children: [
-          Text(
-            'Görünüm',
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w500,
-              color: theme.colorScheme.primary,
+          ListTile(
+            title: Text(
+              l10n.themeSettings,
+              style: TextStyle(
+                color: theme.colorScheme.onSurface,
+              ),
             ),
-          ),
-          const SizedBox(height: 8),
-          Container(
-            decoration: BoxDecoration(
-              color: theme.colorScheme.surface,
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Column(
-              children: [
-                ListTile(
-                  shape: const RoundedRectangleBorder(
-                    borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
+            trailing: const Icon(Icons.brightness_medium),
+            onTap: () {
+              showModalBottomSheet(
+                context: context,
+                backgroundColor: Colors.transparent,
+                builder: (context) => Container(
+                  decoration: BoxDecoration(
+                    color: theme.colorScheme.surface,
+                    borderRadius: const BorderRadius.vertical(
+                      top: Radius.circular(20),
+                    ),
                   ),
-                  title: Row(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(
-                        Icons.brightness_6,
-                        size: 22,
-                        color: theme.colorScheme.onSurface,
+                      const SizedBox(height: 8),
+                      Container(
+                        width: 40,
+                        height: 4,
+                        decoration: BoxDecoration(
+                          color: theme.colorScheme.onSurface.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(2),
+                        ),
                       ),
-                      const SizedBox(width: 16),
+                      const SizedBox(height: 20),
                       Text(
-                        'Tema Modu',
+                        l10n.systemTheme,
                         style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
                           color: theme.colorScheme.onSurface,
                         ),
                       ),
-                    ],
-                  ),
-                  trailing: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        _getThemeModeText(themeProvider.themeMode),
-                        style: TextStyle(
-                          fontSize: 16,
-                          color: theme.colorScheme.onSurface.withOpacity(0.7),
-                        ),
-                      ),
-                      const SizedBox(width: 4),
-                      Icon(
-                        Icons.chevron_right,
-                        color: theme.colorScheme.onSurface.withOpacity(0.5),
-                      ),
-                    ],
-                  ),
-                  onTap: () {
-                    showModalBottomSheet(
-                      context: context,
-                      backgroundColor: Colors.transparent,
-                      builder: (context) => Container(
-                        decoration: BoxDecoration(
-                          color: theme.colorScheme.surface,
-                          borderRadius: const BorderRadius.vertical(
-                            top: Radius.circular(20),
-                          ),
-                        ),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
+                      const SizedBox(height: 16),
+                      RadioListTile<ThemeMode>(
+                        title: Row(
                           children: [
-                            const SizedBox(height: 8),
-                            Container(
-                              width: 40,
-                              height: 4,
-                              decoration: BoxDecoration(
-                                color: theme.colorScheme.onSurface.withOpacity(0.1),
-                                borderRadius: BorderRadius.circular(2),
-                              ),
+                            Icon(
+                              Icons.brightness_auto,
+                              color: theme.colorScheme.onSurface,
+                              size: 20,
                             ),
-                            const SizedBox(height: 20),
+                            const SizedBox(width: 12),
                             Text(
-                              'Tema Modu',
+                              l10n.systemTheme,
                               style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
                                 color: theme.colorScheme.onSurface,
                               ),
                             ),
-                            const SizedBox(height: 16),
-                            RadioListTile<ThemeMode>(
-                              title: Row(
-                                children: [
-                                  Icon(
-                                    Icons.brightness_auto,
-                                    color: theme.colorScheme.onSurface,
-                                    size: 20,
-                                  ),
-                                  const SizedBox(width: 12),
-                                  Text(
-                                    'Sistem',
-                                    style: TextStyle(
-                                      color: theme.colorScheme.onSurface,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              value: ThemeMode.system,
-                              groupValue: themeProvider.themeMode,
-                              onChanged: (ThemeMode? value) {
-                                if (value != null) {
-                                  themeProvider.setThemeMode(value);
-                                }
-                                Navigator.pop(context);
-                              },
-                            ),
-                            RadioListTile<ThemeMode>(
-                              title: Row(
-                                children: [
-                                  Icon(
-                                    Icons.light_mode,
-                                    color: theme.colorScheme.onSurface,
-                                    size: 20,
-                                  ),
-                                  const SizedBox(width: 12),
-                                  Text(
-                                    'Açık',
-                                    style: TextStyle(
-                                      color: theme.colorScheme.onSurface,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              value: ThemeMode.light,
-                              groupValue: themeProvider.themeMode,
-                              onChanged: (ThemeMode? value) {
-                                if (value != null) {
-                                  themeProvider.setThemeMode(value);
-                                }
-                                Navigator.pop(context);
-                              },
-                            ),
-                            RadioListTile<ThemeMode>(
-                              title: Row(
-                                children: [
-                                  Icon(
-                                    Icons.dark_mode,
-                                    color: theme.colorScheme.onSurface,
-                                    size: 20,
-                                  ),
-                                  const SizedBox(width: 12),
-                                  Text(
-                                    'Koyu',
-                                    style: TextStyle(
-                                      color: theme.colorScheme.onSurface,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              value: ThemeMode.dark,
-                              groupValue: themeProvider.themeMode,
-                              onChanged: (ThemeMode? value) {
-                                if (value != null) {
-                                  themeProvider.setThemeMode(value);
-                                }
-                                Navigator.pop(context);
-                              },
-                            ),
-                            const SizedBox(height: 16),
                           ],
                         ),
+                        value: ThemeMode.system,
+                        groupValue: themeProvider.themeMode,
+                        onChanged: (ThemeMode? value) {
+                          if (value != null) {
+                            themeProvider.setThemeMode(value);
+                          }
+                          Navigator.pop(context);
+                        },
                       ),
-                    );
-                  },
+                      RadioListTile<ThemeMode>(
+                        title: Row(
+                          children: [
+                            Icon(
+                              Icons.light_mode,
+                              color: theme.colorScheme.onSurface,
+                              size: 20,
+                            ),
+                            const SizedBox(width: 12),
+                            Text(
+                              l10n.lightTheme,
+                              style: TextStyle(
+                                color: theme.colorScheme.onSurface,
+                              ),
+                            ),
+                          ],
+                        ),
+                        value: ThemeMode.light,
+                        groupValue: themeProvider.themeMode,
+                        onChanged: (ThemeMode? value) {
+                          if (value != null) {
+                            themeProvider.setThemeMode(value);
+                          }
+                          Navigator.pop(context);
+                        },
+                      ),
+                      RadioListTile<ThemeMode>(
+                        title: Row(
+                          children: [
+                            Icon(
+                              Icons.dark_mode,
+                              color: theme.colorScheme.onSurface,
+                              size: 20,
+                            ),
+                            const SizedBox(width: 12),
+                            Text(
+                              l10n.darkTheme,
+                              style: TextStyle(
+                                color: theme.colorScheme.onSurface,
+                              ),
+                            ),
+                          ],
+                        ),
+                        value: ThemeMode.dark,
+                        groupValue: themeProvider.themeMode,
+                        onChanged: (ThemeMode? value) {
+                          if (value != null) {
+                            themeProvider.setThemeMode(value);
+                          }
+                          Navigator.pop(context);
+                        },
+                      ),
+                      const SizedBox(height: 16),
+                    ],
+                  ),
                 ),
-              ],
+              );
+            },
+          ),
+          ListTile(
+            title: Text(
+              l10n.languageSettings,
+              style: TextStyle(
+                color: theme.colorScheme.onSurface,
+              ),
             ),
+            trailing: const Icon(Icons.language),
+            onTap: () {
+              showModalBottomSheet(
+                context: context,
+                backgroundColor: Colors.transparent,
+                builder: (context) => Container(
+                  decoration: BoxDecoration(
+                    color: theme.colorScheme.surface,
+                    borderRadius: const BorderRadius.vertical(
+                      top: Radius.circular(20),
+                    ),
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const SizedBox(height: 8),
+                      Container(
+                        width: 40,
+                        height: 4,
+                        decoration: BoxDecoration(
+                          color: theme.colorScheme.onSurface.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(2),
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                      Text(
+                        l10n.languageSettings,
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: theme.colorScheme.onSurface,
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      RadioListTile<Locale?>(
+                        title: Row(
+                          children: [
+                            Icon(
+                              Icons.language,
+                              color: theme.colorScheme.onSurface,
+                              size: 20,
+                            ),
+                            const SizedBox(width: 12),
+                            Text(
+                              l10n.systemLanguage,
+                              style: TextStyle(
+                                color: theme.colorScheme.onSurface,
+                              ),
+                            ),
+                          ],
+                        ),
+                        value: null,
+                        groupValue: localeProvider.locale,
+                        onChanged: (value) {
+                          localeProvider.setLocale(value);
+                          Navigator.pop(context);
+                        },
+                      ),
+                      RadioListTile<Locale?>(
+                        title: Row(
+                          children: [
+                            const Text(
+                              "🇹🇷",
+                              style: TextStyle(fontSize: 20),
+                            ),
+                            const SizedBox(width: 12),
+                            Text(
+                              l10n.turkish,
+                              style: TextStyle(
+                                color: theme.colorScheme.onSurface,
+                              ),
+                            ),
+                          ],
+                        ),
+                        value: const Locale('tr'),
+                        groupValue: localeProvider.locale,
+                        onChanged: (value) {
+                          localeProvider.setLocale(value);
+                          Navigator.pop(context);
+                        },
+                      ),
+                      RadioListTile<Locale?>(
+                        title: Row(
+                          children: [
+                            const Text(
+                              "🇬🇧",
+                              style: TextStyle(fontSize: 20),
+                            ),
+                            const SizedBox(width: 12),
+                            Text(
+                              l10n.english,
+                              style: TextStyle(
+                                color: theme.colorScheme.onSurface,
+                              ),
+                            ),
+                          ],
+                        ),
+                        value: const Locale('en'),
+                        groupValue: localeProvider.locale,
+                        onChanged: (value) {
+                          localeProvider.setLocale(value);
+                          Navigator.pop(context);
+                        },
+                      ),
+                      const SizedBox(height: 16),
+                    ],
+                  ),
+                ),
+              );
+            },
           ),
         ],
       ),
