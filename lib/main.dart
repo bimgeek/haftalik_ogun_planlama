@@ -3,6 +3,8 @@ import 'package:provider/provider.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'providers/locale_provider.dart';
+import 'providers/week_provider.dart';
+import 'package:intl/intl.dart';
 
 void main() {
   runApp(
@@ -10,6 +12,7 @@ void main() {
       providers: [
         ChangeNotifierProvider(create: (_) => ThemeProvider()),
         ChangeNotifierProvider(create: (_) => LocaleProvider()),
+        ChangeNotifierProvider(create: (_) => WeekProvider()),
       ],
       child: const MyApp(),
     ),
@@ -125,41 +128,44 @@ class _MainScreenState extends State<MainScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.surface,
-      body: _pages[_selectedIndex],
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: _selectedIndex,
-        onDestinationSelected: (index) {
-          setState(() {
-            _selectedIndex = index;
-          });
-        },
-        labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
-        height: 56,
-        elevation: 0,
-        destinations: [
-          NavigationDestination(
-            icon: const Icon(Icons.home_outlined),
-            selectedIcon: const Icon(Icons.home),
-            label: AppLocalizations.of(context)!.homeTab,
-          ),
-          NavigationDestination(
-            icon: const Icon(Icons.search_outlined),
-            selectedIcon: const Icon(Icons.search),
-            label: AppLocalizations.of(context)!.exploreTab,
-          ),
-          NavigationDestination(
-            icon: const Icon(Icons.shopping_basket_outlined),
-            selectedIcon: const Icon(Icons.shopping_basket),
-            label: AppLocalizations.of(context)!.inventoryTab,
-          ),
-          NavigationDestination(
-            icon: const Icon(Icons.settings_outlined),
-            selectedIcon: const Icon(Icons.settings),
-            label: AppLocalizations.of(context)!.settingsTab,
-          ),
-        ],
+    return ChangeNotifierProvider(
+      create: (_) => WeekProvider(),
+      child: Scaffold(
+        backgroundColor: Theme.of(context).colorScheme.surface,
+        body: _pages[_selectedIndex],
+        bottomNavigationBar: NavigationBar(
+          selectedIndex: _selectedIndex,
+          onDestinationSelected: (index) {
+            setState(() {
+              _selectedIndex = index;
+            });
+          },
+          labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
+          height: 56,
+          elevation: 0,
+          destinations: [
+            NavigationDestination(
+              icon: const Icon(Icons.home_outlined),
+              selectedIcon: const Icon(Icons.home),
+              label: AppLocalizations.of(context)!.homeTab,
+            ),
+            NavigationDestination(
+              icon: const Icon(Icons.search_outlined),
+              selectedIcon: const Icon(Icons.search),
+              label: AppLocalizations.of(context)!.exploreTab,
+            ),
+            NavigationDestination(
+              icon: const Icon(Icons.shopping_basket_outlined),
+              selectedIcon: const Icon(Icons.shopping_basket),
+              label: AppLocalizations.of(context)!.inventoryTab,
+            ),
+            NavigationDestination(
+              icon: const Icon(Icons.settings_outlined),
+              selectedIcon: const Icon(Icons.settings),
+              label: AppLocalizations.of(context)!.settingsTab,
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -168,26 +174,218 @@ class _MainScreenState extends State<MainScreen> {
 class HomeTab extends StatelessWidget {
   const HomeTab({super.key});
 
+  String _formatDateRange(BuildContext context, DateTime start, DateTime end) {
+    final now = DateTime.now();
+    final currentWeekStart = now.subtract(Duration(days: now.weekday - 1));
+    final difference = start.difference(currentWeekStart).inDays;
+    
+    print('Current week start: $currentWeekStart');
+    print('Selected week start: $start');
+    print('Difference in days: $difference');
+
+    if (difference == 0) return 'This Week';
+    if (difference == -7) return 'Last Week';
+    if (difference == 6 || difference == 7) return 'Next Week';
+    
+    final startStr = "${start.month}/${start.day}";
+    final endStr = "${end.month}/${end.day}";
+    return "$startStr - $endStr";
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+    final theme = Theme.of(context);
+    final weekProvider = Provider.of<WeekProvider>(context);
     
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.surface,
+      backgroundColor: theme.colorScheme.surface,
       appBar: AppBar(
-        title: Text(
-          l10n.appTitle,
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            color: Theme.of(context).colorScheme.onSurface,
+        title: Column(
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  l10n.appTitle,
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: theme.colorScheme.onSurface,
+                  ),
+                ),
+                Row(
+                  children: [
+                    IconButton(
+                      icon: const Icon(Icons.share_outlined),
+                      onPressed: () {
+                        // TODO: Implement share functionality
+                      },
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.more_vert),
+                      onPressed: () {
+                        // TODO: Implement more options menu
+                      },
+                    ),
+                  ],
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.chevron_left),
+                  onPressed: () {
+                    weekProvider.previousWeek();
+                  },
+                ),
+                Text(
+                  _formatDateRange(
+                    context,
+                    weekProvider.weekStart,
+                    weekProvider.weekEnd,
+                  ),
+                  style: theme.textTheme.titleLarge,
+                ),
+                IconButton(
+                  icon: const Icon(Icons.chevron_right),
+                  onPressed: () {
+                    weekProvider.nextWeek();
+                  },
+                ),
+              ],
+            ),
+          ],
+        ),
+        toolbarHeight: 100,
+      ),
+      body: ListView.builder(
+        padding: const EdgeInsets.all(16),
+        itemCount: 7, // One item per day of the week
+        itemBuilder: (context, dayIndex) {
+          return DaySection(dayIndex: dayIndex);
+        },
+      ),
+    );
+  }
+}
+
+class DaySection extends StatelessWidget {
+  final int dayIndex;
+
+  const DaySection({super.key, required this.dayIndex});
+
+  String _getDayName(BuildContext context, DateTime date) {
+    return DateFormat('EEEE').format(date);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final weekProvider = Provider.of<WeekProvider>(context);
+    final dayDate = weekProvider.weekStart.add(Duration(days: dayIndex));
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 16),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                _getDayName(context, dayDate),
+                style: theme.textTheme.headlineSmall?.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              IconButton(
+                icon: const Icon(Icons.chevron_right),
+                onPressed: () {
+                  // TODO: Navigate to detailed day view
+                },
+              ),
+            ],
           ),
         ),
+        GridView.count(
+          crossAxisCount: 2,
+          mainAxisSpacing: 8,
+          crossAxisSpacing: 8,
+          childAspectRatio: 0.85,
+          shrinkWrap: true,
+          padding: EdgeInsets.zero,
+          physics: const NeverScrollableScrollPhysics(),
+          children: const [
+            MealSlot(mealType: 'Breakfast'),
+            MealSlot(mealType: 'Lunch'),
+            MealSlot(mealType: 'Snacks'),
+            MealSlot(mealType: 'Dinner'),
+          ],
+        ),
+        const SizedBox(height: 16),
+        const Divider(),
+      ],
+    );
+  }
+}
+
+class MealSlot extends StatelessWidget {
+  final String mealType;
+
+  const MealSlot({super.key, required this.mealType});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return Container(
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surface,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: theme.colorScheme.outline.withOpacity(0.2),
+        ),
       ),
-      body: Center(
-        child: Text(
-          l10n.homeContent,
-          style: TextStyle(
-            color: Theme.of(context).colorScheme.onSurface,
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(12),
+          onTap: () {
+            // TODO: Handle meal slot tap
+          },
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Expanded(
+                flex: 3,
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: theme.colorScheme.surfaceVariant,
+                    borderRadius: const BorderRadius.vertical(
+                      top: Radius.circular(12),
+                    ),
+                  ),
+                  child: const Center(
+                    child: Icon(
+                      Icons.add_photo_alternate_outlined,
+                      size: 32,
+                    ),
+                  ),
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.all(12),
+                child: Text(
+                  mealType,
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
       ),
