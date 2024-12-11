@@ -1,0 +1,18 @@
+{
+    "appTitle": "Weekly Meal Planning",
+    "homeTab": "Home",
+    "exploreTab": "Explore",
+    "inventoryTab": "Inventory",
+    "settingsTab": "Settings",
+    "exploreContent": "Explore Content",
+    "inventoryContent": "Inventory Content",
+    "themeSettings": "Theme Settings",
+    "systemTheme": "System",
+    "lightTheme": "Light",
+    "darkTheme": "Dark",
+    "languageSettings": "Language Settings",
+    "systemLanguage": "System",
+    "turkish": "Turkish",
+    "english": "English",
+    "homeContent": "Home Content"
+} 
