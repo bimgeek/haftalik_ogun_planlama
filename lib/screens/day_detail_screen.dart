@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:intl/intl.dart';
 import '../models/meal.dart';
 import '../providers/meal_provider.dart';
 import '../screens/meal_detail_screen.dart';
+import '../widgets/meal_slot.dart';
 
 class DayDetailScreen extends StatelessWidget {
   final DateTime date;
@@ -26,23 +28,26 @@ class DayDetailScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          '${date.month}/${date.day}/${date.year}',
+          DateFormat('EEEE, MMM d').format(date),
           style: theme.textTheme.titleLarge,
         ),
       ),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          _buildMealSection(context, 'Breakfast'),
-          _buildMealSection(context, 'Lunch'),
-          _buildMealSection(context, 'Snacks'),
-          _buildMealSection(context, 'Dinner'),
+          _buildMealTypeSection(context, 'Breakfast'),
+          const SizedBox(height: 24),
+          _buildMealTypeSection(context, 'Lunch'),
+          const SizedBox(height: 24),
+          _buildMealTypeSection(context, 'Snacks'),
+          const SizedBox(height: 24),
+          _buildMealTypeSection(context, 'Dinner'),
         ],
       ),
     );
   }
 
-  Widget _buildMealSection(BuildContext context, String mealType) {
+  Widget _buildMealTypeSection(BuildContext context, String mealType) {
     final theme = Theme.of(context);
     final mealsForType = _getMealsByType(context, mealType);
 
@@ -67,93 +72,52 @@ class DayDetailScreen extends StatelessWidget {
             ],
           ),
         ),
-        if (mealsForType.isEmpty)
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Center(
-                child: Text(
-                  'No meals planned for $mealType',
-                  style: theme.textTheme.bodyLarge,
-                ),
-              ),
-            ),
-          )
-        else
-          ...mealsForType.map((meal) => _buildMealCard(context, meal)),
-        const SizedBox(height: 16),
+        SizedBox(
+          height: 180,
+          child: ListView(
+            scrollDirection: Axis.horizontal,
+            padding: const EdgeInsets.symmetric(horizontal: 4),
+            children: [
+              if (mealsForType.isEmpty)
+                SizedBox(
+                  width: 160,
+                  child: MealSlot(
+                    mealType: mealType,
+                    meal: null,
+                    onTap: () => _navigateToMealDetail(context, mealType),
+                  ),
+                )
+              else
+                ...mealsForType.map((meal) => Padding(
+                  padding: const EdgeInsets.only(right: 8),
+                  child: SizedBox(
+                    width: 160,
+                    child: MealSlot(
+                      mealType: mealType,
+                      meal: meal,
+                      onTap: () => _navigateToMealDetail(
+                        context,
+                        mealType,
+                        meal: meal,
+                      ),
+                    ),
+                  ),
+                )).toList(),
+            ],
+          ),
+        ),
       ],
     );
   }
 
-  Widget _buildMealCard(BuildContext context, Meal meal) {
-    final theme = Theme.of(context);
-
-    return Card(
-      margin: const EdgeInsets.only(bottom: 8),
-      child: InkWell(
-        onTap: () {
-          // TODO: Navigate to meal detail/edit screen
-        },
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            if (meal.imageUrl != null)
-              Image.network(
-                meal.imageUrl!,
-                height: 200,
-                width: double.infinity,
-                fit: BoxFit.cover,
-              ),
-            Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Expanded(
-                        child: Text(
-                          meal.name,
-                          style: theme.textTheme.titleMedium,
-                        ),
-                      ),
-                      Row(
-                        children: List.generate(
-                          5,
-                          (index) => Icon(
-                            index < meal.rating ? Icons.star : Icons.star_border,
-                            color: Colors.amber,
-                            size: 20,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  if (meal.notes != null) ...[
-                    const SizedBox(height: 8),
-                    Text(
-                      meal.notes!,
-                      style: theme.textTheme.bodyMedium,
-                    ),
-                  ],
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  void _navigateToMealDetail(BuildContext context, String mealType) {
+  void _navigateToMealDetail(BuildContext context, String mealType, {Meal? meal}) {
     Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => MealDetailScreen(
           date: date,
           mealType: mealType,
+          meal: meal,
         ),
       ),
     );

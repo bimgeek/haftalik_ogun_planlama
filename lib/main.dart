@@ -7,6 +7,7 @@ import 'providers/week_provider.dart';
 import 'package:intl/intl.dart';
 import 'screens/day_detail_screen.dart';
 import 'providers/meal_provider.dart';
+import 'widgets/meal_slot.dart';
 
 void main() {
   runApp(
@@ -336,67 +337,6 @@ class DaySection extends StatelessWidget {
         const SizedBox(height: 16),
         const Divider(),
       ],
-    );
-  }
-}
-
-class MealSlot extends StatelessWidget {
-  final String mealType;
-
-  const MealSlot({super.key, required this.mealType});
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    return Container(
-      decoration: BoxDecoration(
-        color: theme.colorScheme.surface,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: theme.colorScheme.outline.withOpacity(0.2),
-        ),
-      ),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          borderRadius: BorderRadius.circular(12),
-          onTap: () {
-            // TODO: Handle meal slot tap
-          },
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Expanded(
-                flex: 3,
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: theme.colorScheme.surfaceContainerHighest,
-                    borderRadius: const BorderRadius.vertical(
-                      top: Radius.circular(12),
-                    ),
-                  ),
-                  child: const Center(
-                    child: Icon(
-                      Icons.add_photo_alternate_outlined,
-                      size: 32,
-                    ),
-                  ),
-                ),
-              ),
-              Container(
-                padding: const EdgeInsets.all(12),
-                child: Text(
-                  mealType,
-                  style: theme.textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
     );
   }
 }
