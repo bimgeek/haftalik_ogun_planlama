@@ -179,9 +179,6 @@ class HomeTab extends StatelessWidget {
     final currentWeekStart = now.subtract(Duration(days: now.weekday - 1));
     final difference = start.difference(currentWeekStart).inDays;
     
-    print('Current week start: $currentWeekStart');
-    print('Selected week start: $start');
-    print('Difference in days: $difference');
 
     if (difference == 0) return 'This Week';
     if (difference == -7) return 'Last Week';
@@ -363,7 +360,7 @@ class MealSlot extends StatelessWidget {
                 flex: 3,
                 child: Container(
                   decoration: BoxDecoration(
-                    color: theme.colorScheme.surfaceVariant,
+                    color: theme.colorScheme.surfaceContainerHighest,
                     borderRadius: const BorderRadius.vertical(
                       top: Radius.circular(12),
                     ),
