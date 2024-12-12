@@ -5,6 +5,8 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'providers/locale_provider.dart';
 import 'providers/week_provider.dart';
 import 'package:intl/intl.dart';
+import 'screens/day_detail_screen.dart';
+import 'providers/meal_provider.dart';
 
 void main() {
   runApp(
@@ -13,6 +15,7 @@ void main() {
         ChangeNotifierProvider(create: (_) => ThemeProvider()),
         ChangeNotifierProvider(create: (_) => LocaleProvider()),
         ChangeNotifierProvider(create: (_) => WeekProvider()),
+        ChangeNotifierProvider(create: (_) => MealProvider()),
       ],
       child: const MyApp(),
     ),
@@ -301,26 +304,34 @@ class DaySection extends StatelessWidget {
               IconButton(
                 icon: const Icon(Icons.chevron_right),
                 onPressed: () {
-                  // TODO: Navigate to detailed day view
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => DayDetailScreen(
+                        date: dayDate,
+                      ),
+                    ),
+                  );
                 },
               ),
             ],
           ),
         ),
-        GridView.count(
-          crossAxisCount: 2,
-          mainAxisSpacing: 8,
-          crossAxisSpacing: 8,
-          childAspectRatio: 0.85,
-          shrinkWrap: true,
-          padding: EdgeInsets.zero,
-          physics: const NeverScrollableScrollPhysics(),
-          children: const [
-            MealSlot(mealType: 'Breakfast'),
-            MealSlot(mealType: 'Lunch'),
-            MealSlot(mealType: 'Snacks'),
-            MealSlot(mealType: 'Dinner'),
-          ],
+        SizedBox(
+          height: 180, // Fixed height for the row of meal cards
+          child: ListView(
+            scrollDirection: Axis.horizontal,
+            padding: const EdgeInsets.symmetric(horizontal: 4),
+            children: const [
+              SizedBox(width: 160, child: MealSlot(mealType: 'Breakfast')),
+              SizedBox(width: 8), // Spacing between cards
+              SizedBox(width: 160, child: MealSlot(mealType: 'Lunch')),
+              SizedBox(width: 8),
+              SizedBox(width: 160, child: MealSlot(mealType: 'Snacks')),
+              SizedBox(width: 8),
+              SizedBox(width: 160, child: MealSlot(mealType: 'Dinner')),
+            ],
+          ),
         ),
         const SizedBox(height: 16),
         const Divider(),
